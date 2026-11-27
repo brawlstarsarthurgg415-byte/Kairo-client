@@ -8,13 +8,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +29,11 @@ public class KairoClient implements ClientModInitializer {
         ModuleManager.registerDefaults();
         ProfileManager.init();
 
-        KeyBinding.Category category = KeyBinding.Category.create(Identifier.of(MOD_ID, "main"));
+        // Minecraft 1.21.1 ainda usa a categoria como translation key String.
         menuKey = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("key.kairo.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, category));
+            new KeyBinding("key.kairo.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, "category.kairo.main"));
         profileKey = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("key.kairo.profile", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, category));
+            new KeyBinding("key.kairo.profile", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "category.kairo.main"));
 
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             while (menuKey.wasPressed()) mc.setScreen(new KairoScreen());
@@ -46,16 +44,12 @@ public class KairoClient implements ClientModInitializer {
             ModuleManager.tick(mc);
         });
 
-        // Mira personalizada substitui a mira vanilla quando o modulo esta ativo.
-        HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (ctx, tick) -> {
-            CrosshairModule c = ModuleManager.get(CrosshairModule.class);
-            if (c.isEnabled()) c.draw(ctx);
-            else original.render(ctx, tick);
-        });
-
-        HudElementRegistry.attachElementAfter(VanillaHudElements.CHAT, Identifier.of(MOD_ID, "hud"), (ctx, tick) -> {
+        // Fabric API 0.110 / Minecraft 1.21.1 usa HudRenderCallback.
+        HudRenderCallback.EVENT.register((ctx, tickDelta) -> {
             MinecraftClient mc = MinecraftClient.getInstance();
             if (mc.options.hudHidden || mc.player == null) return;
+            CrosshairModule crosshair = ModuleManager.get(CrosshairModule.class);
+            if (crosshair.isEnabled()) crosshair.draw(ctx);
             ModuleManager.render(ctx, mc);
         });
 
