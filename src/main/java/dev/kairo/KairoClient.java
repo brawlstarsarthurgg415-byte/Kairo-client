@@ -1,5 +1,6 @@
 package dev.kairo;
 
+import dev.kairo.core.AppearanceManager;
 import dev.kairo.core.ModuleManager;
 import dev.kairo.core.ProfileManager;
 import dev.kairo.gui.KairoScreen;
@@ -11,6 +12,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.option.Perspective;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
@@ -27,6 +29,7 @@ public class KairoClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModuleManager.registerDefaults();
+        AppearanceManager.init();
         ProfileManager.init();
 
         // Minecraft 1.21.1 ainda usa a categoria como translation key String.
@@ -45,15 +48,23 @@ public class KairoClient implements ClientModInitializer {
         });
 
         // Fabric API 0.110 / Minecraft 1.21.1 usa HudRenderCallback.
+        // A mira personalizada e desenhada aqui e a mira original e suprimida
+        // via mixin; nunca existem duas miras ao mesmo tempo.
         HudRenderCallback.EVENT.register((ctx, tickDelta) -> {
             MinecraftClient mc = MinecraftClient.getInstance();
             if (mc.options.hudHidden || mc.player == null) return;
             CrosshairModule crosshair = ModuleManager.get(CrosshairModule.class);
-            if (crosshair.isEnabled()) crosshair.draw(ctx);
+            if (crosshair != null && crosshair.isEnabled()
+                && mc.options.getPerspective() == Perspective.FIRST_PERSON) {
+                crosshair.draw(ctx);
+            }
             ModuleManager.render(ctx, mc);
         });
 
-        ClientLifecycleEvents.CLIENT_STOPPING.register(mc -> ProfileManager.save());
+        ClientLifecycleEvents.CLIENT_STOPPING.register(mc -> {
+            ProfileManager.save();
+            AppearanceManager.save();
+        });
         LOGGER.info("Kairo Client iniciado (perfil: {})", ProfileManager.active());
     }
 }

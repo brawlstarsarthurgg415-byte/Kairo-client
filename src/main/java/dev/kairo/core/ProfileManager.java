@@ -152,4 +152,55 @@ public final class ProfileManager {
         save();
         return active;
     }
+
+    private static Path exportsDir() {
+        return profilesDir.getParent().resolve("exports");
+    }
+
+    /** Copia o perfil ativo para a pasta de exportacao. Retorna o arquivo ou null em falha. */
+    public static Path exportActive() {
+        if (profilesDir == null) return null;
+        save();
+        try {
+            Files.createDirectories(exportsDir());
+            Path target = exportsDir().resolve(active + ".json");
+            Files.copy(file(active), target, StandardCopyOption.REPLACE_EXISTING);
+            return target;
+        } catch (IOException e) {
+            KairoClient.LOGGER.error("Falha ao exportar perfil {}", active, e);
+            return null;
+        }
+    }
+
+    /** Lista os nomes dos perfis exportados (sem a extensao .json). */
+    public static List<String> exports() {
+        List<String> names = new ArrayList<>();
+        if (profilesDir == null) return names;
+        try (Stream<Path> s = Files.list(exportsDir())) {
+            s.map(p -> p.getFileName().toString())
+                .filter(n -> n.endsWith(".json"))
+                .map(n -> n.substring(0, n.length() - 5))
+                .sorted()
+                .forEach(names::add);
+        } catch (IOException e) {
+            // Pasta ainda nao existe: nenhuma exportacao.
+        }
+        return names;
+    }
+
+    /** Importa um perfil exportado como um perfil novo e ativa ele. */
+    public static String importAsNew(String exportName) {
+        if (profilesDir == null) return active;
+        String base = sanitize(exportName);
+        String name = base;
+        int n = 1;
+        while (Files.exists(file(name))) name = base + "-" + (n++);
+        try {
+            Files.copy(exportsDir().resolve(exportName + ".json"), file(name));
+            switchTo(name);
+        } catch (IOException e) {
+            KairoClient.LOGGER.error("Falha ao importar perfil {}", exportName, e);
+        }
+        return name;
+    }
 }

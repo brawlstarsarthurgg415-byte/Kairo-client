@@ -34,14 +34,25 @@ public abstract class KModule {
 
     public boolean isEnabled() { return enabled; }
 
-    public void setEnabled(boolean e) { enabled = e; }
+    /** Ativa/desativa o modulo, disparando os ganchos de estado. */
+    public void setEnabled(boolean e) {
+        if (enabled == e) return;
+        enabled = e;
+        if (e) onEnable(); else onDisable();
+    }
 
-    public void toggle() { enabled = !enabled; }
+    public void toggle() { setEnabled(!enabled); }
 
     public void resetDefaults() {
         enabled = defaultEnabled;
         settings.forEach(Setting::reset);
     }
+
+    /** Gancho chamado uma vez quando o modulo e ativado. */
+    public void onEnable() {}
+
+    /** Gancho chamado uma vez quando o modulo e desativado. */
+    public void onDisable() {}
 
     /** Chamado todo tick do cliente, somente se ativo. */
     public void onTick(MinecraftClient mc) {}

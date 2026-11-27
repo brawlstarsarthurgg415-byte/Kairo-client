@@ -14,14 +14,24 @@ public final class ModuleManager {
 
     public static void registerDefaults() {
         MODULES.clear();
+        // PvP
         MODULES.add(new CrosshairModule());
         MODULES.add(new CpsModule());
         MODULES.add(new KeystrokesModule());
         MODULES.add(new ArmorModule());
         MODULES.add(new PotionModule());
+        // HUD
         MODULES.add(new FpsModule());
         MODULES.add(new PingModule());
         MODULES.add(new CoordsModule());
+        MODULES.add(new DirectionModule());
+        MODULES.add(new BiomeModule());
+        MODULES.add(new ClockModule());
+        // Visual
+        MODULES.add(new SprintIndicatorModule());
+        // Desempenho
+        MODULES.add(new PerformanceModule());
+        // Utilidades
         MODULES.add(new ToggleSprintModule());
     }
 
@@ -33,10 +43,11 @@ public final class ModuleManager {
         return out;
     }
 
+    /** Busca o primeiro modulo do tipo; retorna null se nao estiver registrado. */
     @SuppressWarnings("unchecked")
     public static <T extends KModule> T get(Class<T> type) {
         for (KModule m : MODULES) if (type.isInstance(m)) return (T) m;
-        throw new IllegalStateException("Modulo nao registrado: " + type.getSimpleName());
+        return null;
     }
 
     public static void tick(MinecraftClient mc) {
