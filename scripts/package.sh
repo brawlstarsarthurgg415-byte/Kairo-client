@@ -10,7 +10,7 @@ cp dist/Kairo-Fabric.jar work/mrpack/overrides/mods/Kairo-Fabric.jar
 API_FILE="fabric-api-${API}.jar"
 API_URL="https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/${API}/fabric-api-${API}.jar"
 curl -fL --retry 3 "$API_URL" -o "work/mrpack/overrides/mods/$API_FILE"
-cat > work/mrpack/index.json <<EOF
+cat > work/mrpack/modrinth.index.json <<EOF
 {
   "formatVersion": 1,
   "game": "minecraft",
@@ -24,7 +24,7 @@ cat > work/mrpack/index.json <<EOF
   }
 }
 EOF
-(cd work/mrpack && zip -qr ../../dist/Kairo-Battly.mrpack index.json overrides)
+(cd work/mrpack && zip -qr ../../dist/Kairo-Battly.mrpack modrinth.index.json overrides)
 javac --release 21 -d work/installer installer/src/dev/kairo/installer/*.java
 cp dist/Kairo-Fabric.jar work/installer/kairo-mod.jar
 printf 'mc_version=%s\nloader_version=%s\nmod_version=%s\n' "$MC" "$LOADER" "$VERSION" > work/installer/kairo-installer.properties
