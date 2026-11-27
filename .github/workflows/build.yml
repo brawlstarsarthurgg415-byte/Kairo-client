@@ -42,7 +42,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Kairo-Client-${{ github.ref_name }}
+          name: Kairo-Client-${{ github.run_number }}
           path: |
             dist/Kairo-Fabric.jar
             dist/Kairo-Standalone.jar
