@@ -1,41 +1,50 @@
 # Kairo Client
 
-Cliente PvP visual e modular para Minecraft Java. **Sem cheats**: apenas personalização, informações e utilidades legítimas.
+Cliente PvP visual e modular para Minecraft Java. **Sem cheats**: apenas personalizacao, informacoes e utilidades legitimas.
 
-## Ambiente-alvo desta versão
+## Ambiente-alvo
 
 - Minecraft Java **1.21.1**
 - Fabric Loader **0.16.10**
 - Fabric API **0.110.0+1.21.1**
 - Java **21**
-- Teste de compilação: GitHub Actions
-- Teste dentro do Minecraft/Android: pendente
 
-## Recursos implementados
+## Qual arquivo devo usar?
+
+### Android (Battly Launcher)
+
+**Use somente `Kairo-Fabric.jar`. Nao tente abrir/executar esse arquivo pelo recurso "Executar .jar".**
+
+1. Abra o Battly e confirme que a instancia e Minecraft **1.21.1 + Fabric Loader**.
+2. Baixe o arquivo `Kairo-Fabric.jar` nos artefatos do GitHub Actions.
+3. Coloque o arquivo na pasta `mods` da instancia usada pelo Battly.
+4. Instale tambem o **Fabric API 0.110.0+1.21.1** na mesma pasta `mods`.
+5. Inicie o Minecraft pela instancia Fabric normalmente. O Kairo e carregado pelo Fabric; nao e um aplicativo Java separado.
+
+Se o Battly nao permitir importar mods diretamente, use o gerenciador de arquivos do Android para copiar os dois JARs para a pasta `mods` correta da instancia.
+
+### Windows/macOS/Linux desktop
+
+`Kairo-Desktop-Installer.jar` e um instalador grafico Swing/AWT para o Minecraft Launcher desktop. Ele exige Java 21 e **nao e compativel com o modo "Executar .jar" do Battly/Android**.
+
+## Recursos
 
 | Recurso | Estado |
 |---|---|
-| Mira configurável (cruz, ponto, círculo, cor, tamanho, espaçamento e opacidade) | Implementado; requer teste no jogo |
-| HUD: FPS, ping, CPS, coordenadas, keystrokes, armadura e poções | Implementado; requer teste no jogo |
-| Sprint automático usando a tecla nativa do jogo | Implementado; requer teste no jogo |
-| Painel de módulos com tema escuro, navegação e opções | Implementado; requer teste em resoluções diferentes |
-| Perfis salvos em JSON e troca rápida | Implementado; requer teste no jogo |
-| Empacotamento Fabric e instalador Standalone | Implementado; requer teste em desktop |
-
-## Instalação
-
-Para usar o mod em uma instalação Fabric 1.21.1, coloque Kairo-Fabric.jar e o Fabric API correspondente na pasta mods.
-
-O arquivo Kairo-Standalone.jar é um instalador Java voltado a launchers desktop. Ele não é um APK e não substitui o Fabric no Android.
+| Mira configuravel | Implementado; requer teste no jogo |
+| HUD: FPS, ping, CPS, coordenadas, keystrokes, armadura e pocoes | Implementado; requer teste no jogo |
+| Sprint automatico usando tecla nativa | Implementado; requer teste no jogo |
+| Painel de modulos com tema escuro | Implementado; requer teste em resolucoes diferentes |
+| Perfis salvos e troca rapida | Implementado; requer teste no jogo |
 
 ## Compilar
 
-O workflow do GitHub Actions compila, executa testes automatizados, empacota e valida os JARs. Os arquivos aparecem na seção Actions → Artifacts quando a execução termina com sucesso.
+O GitHub Actions compila, executa testes automatizados, empacota e valida os JARs. Os arquivos aparecem em **Actions → Artifacts** apos a execucao.
 
 ## Compatibilidade Android
 
-A compilação bem-sucedida não garante funcionamento em launchers Android. O teste final deve ser feito no Minecraft 1.21.1 com Fabric Loader 0.16.10, Fabric API 0.110.0+1.21.1 e Java 21. MobileGlues e outros renderizadores podem ter limitações próprias.
+Compilar com sucesso nao garante funcionamento em launchers Android. O teste final precisa ser feito no Minecraft 1.21.1 com Fabric Loader 0.16.10, Fabric API 0.110.0+1.21.1 e Java 21. Renderizadores como MobileGlues podem ter limitacoes proprias.
 
 ## Fair play
 
-Não contém KillAura, AimAssist, AutoClicker, reach, velocity, ESP, X-Ray, macros nem manipulação de pacotes.
+Nao contem KillAura, AimAssist, AutoClicker, reach, velocity, ESP, X-Ray, macros nem manipulacao de pacotes.
