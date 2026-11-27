@@ -1,0 +1,83 @@
+name: Unpack Kairo source archive
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "kairo-client.zip"
+      - ".github/workflows/unpack-source.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Safely extract source archive
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          import shutil
+
+          archive = Path("kairo-client.zip")
+          if not archive.is_file():
+              raise SystemExit("kairo-client.zip was not found")
+
+          temp = Path("_kairo_unpack")
+          if temp.exists():
+              shutil.rmtree(temp)
+          temp.mkdir()
+
+          with ZipFile(archive) as z:
+              for info in z.infolist():
+                  p = Path(info.filename)
+                  if p.is_absolute() or ".." in p.parts:
+                      raise SystemExit(f"Unsafe archive path: {info.filename}")
+              z.extractall(temp)
+
+          entries = list(temp.iterdir())
+          source = entries[0] if len(entries) == 1 and entries[0].is_dir() else temp
+
+          for item in source.iterdir():
+              if item.name == ".git":
+                  continue
+              target = Path(item.name)
+              if target.name == "unpack-source.yml" and target.parent.name == "workflows":
+                  continue
+              if item.is_dir():
+                  shutil.copytree(item, target, dirs_exist_ok=True,
+                                  ignore=shutil.ignore_patterns(".git"))
+              else:
+                  shutil.copy2(item, target)
+
+          shutil.rmtree(temp)
+          PY
+
+      - name: Show extracted project structure
+        run: |
+          echo "Extracted files:"
+          find . -maxdepth 4 -type f \
+            ! -path "./.git/*" \
+            ! -path "./kairo-client.zip" \
+            | sort | head -300
+
+      - name: Commit extracted source into main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No extracted changes to commit."
+          else
+            git commit -m "chore: unpack Kairo client source archive"
+            git push
+          fi
