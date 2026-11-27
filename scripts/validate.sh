@@ -25,7 +25,7 @@ assert 'fabric.mod.json' in inner.namelist(), 'mod embutido invalido'
 assert b'dev.kairo.installer.Installer' in s.read('META-INF/MANIFEST.MF'), 'Main-Class ausente'
 print('OK desktop installer (Swing/AWT; desktop only)')
 pack = zipfile.ZipFile('Kairo-Battly.mrpack')
-index = json.loads(pack.read('index.json'))
+index = json.loads(pack.read('modrinth.index.json'))
 assert index['formatVersion'] == 1 and index['game'] == 'minecraft'
 assert index['dependencies']['minecraft'] == '1.21.1'
 names = pack.namelist()
