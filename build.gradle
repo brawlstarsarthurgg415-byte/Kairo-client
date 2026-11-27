@@ -10,11 +10,22 @@ base {
     archivesName = project.archives_base_name
 }
 
+repositories {
+    // Mixin (processor de anotacoes) nao esta no Maven Central nas versoes usadas.
+    maven { name = 'Sponge'; url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
+    mavenCentral()
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Processador de anotacoes do Mixin: gera o refmap usado em producao
+    // (sem ele o mixin de supressao da mira quebraria fora do ambiente de dev).
+    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -26,6 +37,27 @@ processResources {
         expand "version": inputs.properties.version
     }
 }
+
+// Sprites do tema gerados no build a partir de base64 (mantem o repositorio
+// 100% texto e reproduzivel; os PNGs entram no JAR via generated-resources).
+def genSprites = tasks.register('generateKairoSprites') {
+    def outDir = layout.buildDirectory.dir('generated-resources/assets/kairo/textures/gui/sprites')
+    outputs.dir(outDir)
+    doLast {
+        def sprites = [
+            'button.png': 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAf0lEQVR4nGNkQAN6VkH/0cVIAZeOrWNE5qNw9KyC/n94+5wS8xkEhCVRLGGipuEMDAwMH94+RwkFJmoajs0SRmobjgwEhCURQUQrMGrBqAWjFoxaMGoBVSy4dGwdo4CwJNUNhlWdTAwMkIqampYg18vwIKKWJeiVPiO6Amo3WwC1qTTsBv7mlAAAAABJRU5ErkJggg==',
+            'panel.png': 'iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAf0lEQVR4nGNkQAPK2rb/0cVIAXevHmZE5qNwlLVt/3/+8JoS8xl4BURRLGGipuEMDAwMnz+8RgkFJmoajs0SRmobjgx4BUQRQUQrMGrBqAWjFoxaMGoBVSy4e/UwI6+AKNUNhlWdTAwMkIqampYg18vwIKKWJeiVPiO6Amo3WwBrjDUHywM2mwAAAABJRU5ErkJggg=='
+        ]
+        sprites.each { name, b64 ->
+            def f = outDir.get().file(name).asFile
+            f.parentFile.mkdirs()
+            f.bytes = java.util.Base64.decoder.decode(b64)
+        }
+    }
+}
+processResources.dependsOn genSprites
+tasks.matching { it.name == 'sourcesJar' }.configureEach { dependsOn genSprites }
+sourceSets.main.resources.srcDir layout.buildDirectory.dir('generated-resources')
 
 tasks.withType(JavaCompile).configureEach {
     it.options.release = 21
