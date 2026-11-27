@@ -1,35 +1,41 @@
 # Kairo Client
 
-Cliente PvP para Minecraft Java (Fabric). **Sem cheats**: só informação, personalização e utilidades legítimas.
+Cliente PvP visual e modular para Minecraft Java. **Sem cheats**: apenas personalização, informações e utilidades legítimas.
 
-- Minecraft **1.21.11** · Fabric Loader **0.18.4** · Fabric API **0.141.1+1.21.11** · Java **21**
+## Ambiente-alvo desta versão
 
-## Status honesto (v1.0.0, primeira rodada)
+- Minecraft Java **1.21.1**
+- Fabric Loader **0.16.10**
+- Fabric API **0.110.0+1.21.1**
+- Java **21**
+- Teste de compilação: GitHub Actions
+- Teste dentro do Minecraft/Android: pendente
+
+## Recursos implementados
 
 | Recurso | Estado |
 |---|---|
-| Mira personalizada (cruz, ponto, círculo, cor, tamanho, espaçamento, opacidade, contorno) | implementado, **não testado no jogo** |
-| HUD: FPS, Ping, CPS (esq/dir), Coordenadas, Keystrokes, Armor HUD (durabilidade), Potion HUD | implementado, **não testado no jogo** |
-| Sprint automático (usa a tecla de sprint do próprio jogo) | implementado, não testado |
-| Central de mods (tecla **Right Shift**): ligar/desligar, configurar, restaurar padrão | implementado, não testado |
-| Perfis salvos em JSON, troca rápida (tecla configurável), backup automático (10 últimos) | implementado, não testado |
-| Instalador Standalone | implementado, não testado |
-| GitHub Actions + Releases | implementado, não testado |
-| Editor de HUD por arrastar, editor visual de mira, importar/exportar, Replay, Analytics, launcher próprio, Config Cloud etc. | **não implementado** (próximas rodadas) |
-
-Posições do HUD são em % da tela (funcionam em qualquer resolução). O CPS é informativo, lido do estado do mouse a cada frame.
+| Mira configurável (cruz, ponto, círculo, cor, tamanho, espaçamento e opacidade) | Implementado; requer teste no jogo |
+| HUD: FPS, ping, CPS, coordenadas, keystrokes, armadura e poções | Implementado; requer teste no jogo |
+| Sprint automático usando a tecla nativa do jogo | Implementado; requer teste no jogo |
+| Painel de módulos com tema escuro, navegação e opções | Implementado; requer teste em resoluções diferentes |
+| Perfis salvos em JSON e troca rápida | Implementado; requer teste no jogo |
+| Empacotamento Fabric e instalador Standalone | Implementado; requer teste em desktop |
 
 ## Instalação
 
-**Opção A, Fabric Mod** (já tem Fabric instalado): coloque `Kairo-Fabric.jar` e o Fabric API em `.minecraft/mods/`.
+Para usar o mod em uma instalação Fabric 1.21.1, coloque Kairo-Fabric.jar e o Fabric API correspondente na pasta mods.
 
-**Opção B, Standalone**: dê dois cliques em `Kairo-Standalone.jar` (ou `java -jar Kairo-Standalone.jar --cli`). Ele cria a instalação "Kairo Client" no Launcher oficial, com pasta própria (`.minecraft/kairo-client`), Fabric Loader e Fabric API. Abra o Launcher uma vez antes. Para outros launchers (Prism, etc.) use a Opção A.
+O arquivo Kairo-Standalone.jar é um instalador Java voltado a launchers desktop. Ele não é um APK e não substitui o Fabric no Android.
 
-## Compilar (GitHub Actions)
+## Compilar
 
-Dê push no `main` ou crie uma tag `v1.0.0`. Os JARs saem em *Actions → Artifacts* e, nas tags, em *Releases*. Em caso de falha, o artifact `build-logs` traz o log.
-Não precisa de `gradlew`: o workflow instala o Gradle 9.2.1.
+O workflow do GitHub Actions compila, executa testes automatizados, empacota e valida os JARs. Os arquivos aparecem na seção Actions → Artifacts quando a execução termina com sucesso.
+
+## Compatibilidade Android
+
+A compilação bem-sucedida não garante funcionamento em launchers Android. O teste final deve ser feito no Minecraft 1.21.1 com Fabric Loader 0.16.10, Fabric API 0.110.0+1.21.1 e Java 21. MobileGlues e outros renderizadores podem ter limitações próprias.
 
 ## Fair play
 
-Não há KillAura, AimAssist, AutoClicker, reach, velocity, ESP, X-Ray, macros nem manipulação de pacotes, e não haverá.
+Não contém KillAura, AimAssist, AutoClicker, reach, velocity, ESP, X-Ray, macros nem manipulação de pacotes.
