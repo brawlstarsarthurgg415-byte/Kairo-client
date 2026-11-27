@@ -1,0 +1,61 @@
+name: Build Kairo Client
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Set up Gradle 9.2.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.2.1"
+
+      - name: Compile and run tests
+        run: gradle --no-daemon clean build
+
+      - name: Package Fabric and Standalone JARs
+        run: bash scripts/package.sh
+
+      - name: Validate generated JARs
+        run: bash scripts/validate.sh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kairo-Client-${{ github.ref_name }}
+          path: |
+            dist/Kairo-Fabric.jar
+            dist/Kairo-Standalone.jar
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/Kairo-Fabric.jar
+            dist/Kairo-Standalone.jar
+            dist/SHA256SUMS.txt
