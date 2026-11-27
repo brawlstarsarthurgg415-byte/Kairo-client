@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "kairo",
+  "version": "${version}",
+  "name": "Kairo Client",
+  "description": "Cliente PvP modular para Minecraft Java: HUD, mira personalizada, perfis e ferramentas de desempenho. Sem cheats.",
+  "authors": ["Kairo Team"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.kairo.KairoClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
