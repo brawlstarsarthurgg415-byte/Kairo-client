@@ -48,11 +48,11 @@ jobs:
           source = entries[0] if len(entries) == 1 and entries[0].is_dir() else temp
 
           for item in source.iterdir():
-              if item.name == ".git":
+              if item.name in {".git", ".github"}:
+                  # Workflow files require a separate GitHub Actions permission.
+                  # Keep the repository's existing workflow directory intact.
                   continue
               target = Path(item.name)
-              if target.name == "unpack-source.yml" and target.parent.name == "workflows":
-                  continue
               if item.is_dir():
                   shutil.copytree(item, target, dirs_exist_ok=True,
                                   ignore=shutil.ignore_patterns(".git"))
