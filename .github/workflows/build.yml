@@ -45,7 +45,7 @@ jobs:
           name: Kairo-Client-${{ github.run_number }}
           path: |
             dist/Kairo-Fabric.jar
-            dist/Kairo-Standalone.jar
+            dist/Kairo-Desktop-Installer.jar
             dist/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 30
