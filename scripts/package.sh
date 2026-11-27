@@ -16,5 +16,8 @@ printf 'mc_version=%s\nloader_version=%s\nmod_version=%s\n' "$MC" "$LOADER" "$VE
 printf 'Main-Class: dev.kairo.installer.Installer\n' > work/manifest.txt
 jar cfm dist/Kairo-Standalone.jar work/manifest.txt -C work/installer .
 
-(cd dist && sha256sum *.jar > SHA256SUMS.txt)
+# Pacote MRPack para importacao direta no Battly (Android/desktop).
+bash scripts/mrpack.sh
+
+(cd dist && sha256sum Kairo-Fabric.jar Kairo-Standalone.jar Kairo-Battly.mrpack > SHA256SUMS.txt)
 ls -l dist
