@@ -2,29 +2,26 @@ package dev.kairo.modules;
 
 import dev.kairo.core.Category;
 import dev.kairo.core.Setting;
-import dev.kairo.util.CpsCounter;
+import dev.kairo.util.InputTracker;
 import java.util.List;
 import net.minecraft.client.MinecraftClient;
-import org.lwjgl.glfw.GLFW;
 
-/** Conta cliques lendo o estado do mouse a cada frame (somente informativo). */
+/** Contador de CPS (somente informativo). Leitura do mouse feita em InputTracker. */
 public final class CpsModule extends HudModule {
-    private final CpsCounter left = new CpsCounter();
-    private final CpsCounter right = new CpsCounter();
+    private static final List<String> DEMO = List.of("CPS: 8 | 6");
     private final Setting mode = add(Setting.choice("mode", "Mostrar", 1, "Só esquerdo", "Esquerdo | Direito"));
 
     public CpsModule() {
-        super("cps", "CPS", "Contador de cliques por segundo (esquerdo e direito).", Category.PVP, true, 1, 22);
+        super("cps", "CPS", "Cliques por segundo (esquerdo e direito).", Category.PVP, true, 10, 220);
     }
 
     @Override
-    protected List<String> lines(MinecraftClient mc) {
+    protected List<String> compute(MinecraftClient mc) {
         long now = System.currentTimeMillis();
-        long handle = mc.getWindow().getHandle();
-        boolean inGame = mc.currentScreen == null;
-        left.update(inGame && GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS, now);
-        right.update(inGame && GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS, now);
-        if (mode.get() == 0) return List.of("CPS: " + left.cps(now));
-        return List.of("CPS: " + left.cps(now) + " | " + right.cps(now));
+        if (mode.get() == 0) return List.of("CPS: " + InputTracker.LEFT.cps(now));
+        return List.of("CPS: " + InputTracker.LEFT.cps(now) + " | " + InputTracker.RIGHT.cps(now));
     }
+
+    @Override
+    protected List<String> demo() { return DEMO; }
 }

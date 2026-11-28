@@ -1,5 +1,6 @@
 package dev.kairo.core;
 
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +15,7 @@ public abstract class KModule {
     public final Category category;
     private final boolean defaultEnabled;
     private boolean enabled;
+    private boolean core;
     private final List<Setting> settings = new ArrayList<>();
 
     protected KModule(String id, String name, String description, Category category, boolean defaultEnabled) {
@@ -25,6 +27,14 @@ public abstract class KModule {
         this.enabled = defaultEnabled;
     }
 
+    /** Modulo interno (sempre ativo, nao aparece como cartao ligavel). */
+    protected void markCore() { core = true; enabled = true; }
+
+    public boolean isCore() { return core; }
+
+    /** Converte configuracoes de versoes antigas do perfil antes de aplicar os valores. */
+    public void migrateLegacy(JsonObject savedSettings) {}
+
     protected Setting add(Setting s) {
         settings.add(s);
         return s;
@@ -34,17 +44,20 @@ public abstract class KModule {
 
     public boolean isEnabled() { return enabled; }
 
-    public void setEnabled(boolean e) { enabled = e; }
+    public void setEnabled(boolean e) { enabled = core || e; }
 
-    public void toggle() { enabled = !enabled; }
+    public void toggle() { if (!core) enabled = !enabled; }
 
     public void resetDefaults() {
-        enabled = defaultEnabled;
+        enabled = core || defaultEnabled;
         settings.forEach(Setting::reset);
     }
 
     /** Chamado todo tick do cliente, somente se ativo. */
     public void onTick(MinecraftClient mc) {}
+
+    /** Chamado todo tick enquanto o modulo esta desligado (ex.: restaurar opcoes alteradas). */
+    public void onDisabledTick(MinecraftClient mc) {}
 
     /** Chamado todo frame na camada do HUD, somente se ativo. */
     public void onRender(DrawContext ctx, MinecraftClient mc) {}

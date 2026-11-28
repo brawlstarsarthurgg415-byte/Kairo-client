@@ -7,12 +7,14 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.effect.StatusEffectInstance;
 
 public final class PotionModule extends HudModule {
+    private static final List<String> DEMO = List.of("Velocidade II - 1:42", "Força I - 0:38", "Resistência I - 3:05");
+
     public PotionModule() {
-        super("potions", "Potion HUD", "Efeitos ativos com nível e tempo restante.", Category.PVP, false, 99, 30);
+        super("potions", "Potion HUD", "Efeitos ativos com nível e tempo restante.", Category.PVP, false, 1000, 300);
     }
 
     @Override
-    protected List<String> lines(MinecraftClient mc) {
+    protected List<String> compute(MinecraftClient mc) {
         if (mc.player == null) return List.of();
         List<String> out = new ArrayList<>();
         for (StatusEffectInstance e : mc.player.getStatusEffects()) {
@@ -28,4 +30,7 @@ public final class PotionModule extends HudModule {
         }
         return out;
     }
+
+    @Override
+    protected List<String> demo() { return DEMO; }
 }

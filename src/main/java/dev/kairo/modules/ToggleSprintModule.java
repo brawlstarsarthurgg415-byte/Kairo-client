@@ -8,7 +8,7 @@ import net.minecraft.client.MinecraftClient;
 public final class ToggleSprintModule extends KModule {
     public ToggleSprintModule() {
         super("togglesprint", "Sprint automático", "Corre automaticamente ao andar para frente (sem agachar).",
-            Category.UTILITY, false);
+            Category.PVP, false);
     }
 
     @Override

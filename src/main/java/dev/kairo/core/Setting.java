@@ -5,7 +5,8 @@ public final class Setting {
     public enum Kind { BOOL, INT, CHOICE, COLOR }
 
     public static final int[] PALETTE = {
-        0xFFFFFF, 0xFF5555, 0x55FF55, 0x5555FF, 0x55FFFF, 0xFFFF55, 0xFF55FF, 0xFFAA00, 0x000000
+        0xFFFFFF, 0xFF5555, 0x55FF55, 0x5555FF, 0x55FFFF, 0xFFFF55, 0xFF55FF, 0xFFAA00, 0x000000,
+        0x888888, 0x2E2E2E, 0xFF7A1A
     };
 
     public final String id;
@@ -17,6 +18,7 @@ public final class Setting {
     public final int step;
     public final String[] choices;
     private int value;
+    private boolean hidden;
 
     private Setting(String id, String label, Kind kind, int def, int min, int max, int step, String[] choices) {
         this.id = id;
@@ -45,6 +47,11 @@ public final class Setting {
     public static Setting color(String id, String label, int def) {
         return new Setting(id, label, Kind.COLOR, def, 0, 0xFFFFFF, 1, null);
     }
+
+    /** Esconde a configuracao do painel (ela continua salva no perfil). */
+    public Setting hide() { hidden = true; return this; }
+
+    public boolean isHidden() { return hidden; }
 
     public int get() { return value; }
 

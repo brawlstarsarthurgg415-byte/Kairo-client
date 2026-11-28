@@ -81,23 +81,36 @@ public final class ProfileManager {
     }
 
     public static void load() {
+        Path f = file(active);
+        JsonObject mods = null;
         try {
-            JsonObject root = JsonParser.parseString(Files.readString(file(active))).getAsJsonObject();
-            JsonObject mods = root.getAsJsonObject("modules");
-            for (KModule m : ModuleManager.all()) {
-                m.resetDefaults();
-                if (mods == null || !mods.has(m.id)) continue;
+            JsonObject root = JsonParser.parseString(Files.readString(f)).getAsJsonObject();
+            mods = root.getAsJsonObject("modules");
+        } catch (Exception e) {
+            KairoClient.LOGGER.error("Perfil {} invalido; guardando copia .corrupt e usando padrao", active, e);
+            try {
+                Files.move(f, f.resolveSibling(active + ".json.corrupt"), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException ignored) {
+                // sem problema: o arquivo sera sobrescrito no proximo save
+            }
+        }
+        for (KModule m : ModuleManager.all()) {
+            m.resetDefaults();
+            if (mods == null || !mods.has(m.id)) continue;
+            try {
                 JsonObject mo = mods.getAsJsonObject(m.id);
                 if (mo.has("enabled")) m.setEnabled(mo.get("enabled").getAsBoolean());
                 if (mo.has("settings")) {
                     JsonObject so = mo.getAsJsonObject("settings");
+                    m.migrateLegacy(so);
                     for (Setting s : m.settings()) if (so.has(s.id)) s.set(so.get(s.id).getAsInt());
                 }
+            } catch (Exception e) {
+                KairoClient.LOGGER.warn("Configuracao invalida no modulo {}; usando padrao dele", m.id, e);
+                m.resetDefaults();
             }
-        } catch (Exception e) {
-            KairoClient.LOGGER.error("Perfil {} invalido, usando padrao", active, e);
-            ModuleManager.all().forEach(KModule::resetDefaults);
         }
+        ModuleManager.markDirty();
     }
 
     private static void backup() {
@@ -151,5 +164,62 @@ public final class ProfileManager {
         active = "perfil-" + n;
         save();
         return active;
+    }
+
+    /** Copia o perfil ativo para config/kairo/exports/NOME.json. Retorna o caminho ou null. */
+    public static Path exportActive() {
+        if (profilesDir == null) return null;
+        try {
+            save();
+            Path dir = profilesDir.getParent().resolve("exports");
+            Files.createDirectories(dir);
+            Path out = dir.resolve(active + ".json");
+            Files.copy(file(active), out, StandardCopyOption.REPLACE_EXISTING);
+            return out;
+        } catch (IOException e) {
+            KairoClient.LOGGER.warn("Exportacao falhou", e);
+            return null;
+        }
+    }
+
+    /** Importa todos os .json da pasta config/kairo/import como perfis novos. Retorna quantos entraram. */
+    public static int importAll() {
+        if (profilesDir == null) return 0;
+        int count = 0;
+        try {
+            Path dir = profilesDir.getParent().resolve("import");
+            Files.createDirectories(dir);
+            try (Stream<Path> s = Files.list(dir)) {
+                for (Path p : (Iterable<Path>) s.filter(x -> x.getFileName().toString().endsWith(".json"))::iterator) {
+                    String raw = p.getFileName().toString();
+                    String name = sanitize(raw.substring(0, raw.length() - 5));
+                    try {
+                        JsonObject o = JsonParser.parseString(Files.readString(p)).getAsJsonObject();
+                        if (!o.has("modules")) continue; // nao e um perfil Kairo
+                        Path target = file(name);
+                        int n = 2;
+                        while (Files.exists(target)) target = file(name + "-" + n++);
+                        Files.writeString(target, GSON.toJson(o));
+                        count++;
+                    } catch (Exception bad) {
+                        KairoClient.LOGGER.warn("Arquivo ignorado na importacao: {}", raw);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            KairoClient.LOGGER.warn("Importacao falhou", e);
+        }
+        return count;
+    }
+
+    public static Path importDir() {
+        return profilesDir == null ? null : profilesDir.getParent().resolve("import");
+    }
+
+    /** Restaura todos os modulos do perfil ativo para o padrao. */
+    public static void resetActive() {
+        ModuleManager.all().forEach(KModule::resetDefaults);
+        ModuleManager.markDirty();
+        save();
     }
 }

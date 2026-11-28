@@ -3,17 +3,24 @@
   "id": "kairo",
   "version": "${version}",
   "name": "Kairo Client",
-  "description": "Cliente PvP modular para Minecraft Java 1.21.1: HUD, mira personalizada, perfis e ferramentas de desempenho. Sem cheats.",
-  "authors": ["Kairo Team"],
+  "description": "Cliente PvP modular para Minecraft Java 1.21.1: menu próprio, editor de HUD, mira, Keystrokes e perfis. Sem cheats.",
+  "authors": [
+    "Kairo Team"
+  ],
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
-    "client": ["dev.kairo.KairoClient"]
+    "client": [
+      "dev.kairo.KairoClient"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.16.10",
     "minecraft": "1.21.1",
     "java": ">=21",
     "fabric-api": ">=0.110.0"
-  }
+  },
+  "mixins": [
+    "kairo.mixins.json"
+  ]
 }
